@@ -61,13 +61,15 @@ VillageState.random = function(parcelCount = 5) {
     return new VillageState("Post Office", parcels);
 };
 
-
-// Have a robot work
-//
-// state: VillageObject
-// robot: Robot's function
-// memory: This parameter can be omitted.
-//
+/**
+ * Have a robot work
+ *
+ * @param {VillageObject} state
+ * @param {robot(state, memory): Object} robot - Robot's function
+ * @param {string[]} memory - This parameter can be omitted.
+ * @return {undefined}
+ * 
+ */
 function runRobot(state, robot, memory) {
     for (let turn = 0;; turn++) {
         // If delivary is completed. break the loop.
@@ -124,7 +126,15 @@ function findRoute(graph, from, to) {
     }
 }
 
-//
+
+/**
+ * ?
+ * 
+ * @param {VillageObject} {place, parcels}
+ * @param {string[]} route - It is same as 'memory' in the other robots.
+ * 
+ * I have no idea why the first parameter is '{place, parcels}'.
+ */
 function goalOrientedRobot({place, parcels}, route) {
     if (route.length == 0) {
         let parcel = parcels[0];
@@ -136,6 +146,7 @@ function goalOrientedRobot({place, parcels}, route) {
     }
     return {direction: route[0], memory: route.slice(1)};
 }
+
 
 // Define roads
 const roads = [
@@ -208,6 +219,6 @@ console.log();
 
 
 // Test goal-oriented robot
-// console.log('Testing goal-oriented robot...');
-// runRobot(VillageState.random(), goalOrientedRobot);
-// console.log();
+console.log('Testing goal-oriented robot...');
+runRobot(VillageState.random(), goalOrientedRobot, []);
+console.log();
