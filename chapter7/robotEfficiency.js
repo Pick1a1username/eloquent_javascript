@@ -72,12 +72,12 @@ VillageState.random = function(parcelCount = 5) {
  */
 function runRobot(state, robot, memory) {
     for (let turn = 0;; turn++) {
-        // console.log();
-        // console.log(`Current Place: ${state.place}`);
-        // console.log(`Current Parcels`);
-        // state.parcels.forEach( element => {
-        //     console.log(element);
-        // });
+        console.log();
+        console.log(`Current Place: ${state.place}`);
+        console.log(`Current Parcels`);
+        state.parcels.forEach( element => {
+            console.log(element);
+        });
 
         // If delivary is completed. break the loop.
         if (state.parcels.length == 0) {
@@ -324,4 +324,4 @@ const mailRoute = [
 
 // Measure robots
 console.log('Comparing robots...');
-compareRobots(200, 200)
+compareRobots(1, 10)
