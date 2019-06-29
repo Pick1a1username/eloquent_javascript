@@ -72,6 +72,13 @@ VillageState.random = function(parcelCount = 5) {
  */
 function runRobot(state, robot, memory) {
     for (let turn = 0;; turn++) {
+        // console.log();
+        // console.log(`Current Place: ${state.place}`);
+        // console.log(`Current Parcels`);
+        // state.parcels.forEach( element => {
+        //     console.log(element);
+        // });
+
         // If delivary is completed. break the loop.
         if (state.parcels.length == 0) {
             console.log(`Done in ${turn} turns`);
@@ -136,14 +143,81 @@ function findRoute(graph, from, to) {
  */
 function goalOrientedRobot({place, parcels}, route) {
     if (route.length == 0) {
-        let parcel = parcels[0];
-        if (parcel.place != place) {
+        // let parcel = parcels[0];
+
+        // console.log(parcels);
+        // Get the parcels the robot is carrying.
+        let robotCarrying = parcels.filter( parcel => parcel['place'] == place);
+        // console.log(robotCarrying);
+
+        let parcel = {};
+        if ( robotCarrying.length == 0) {
+            // Aggregate the place of the parcels
+            let parcelAgg = {};
+            for ( oneParcel of parcels ) {
+                if ( parcelAgg[oneParcel.place] == undefined ) {
+                    parcelAgg[oneParcel.place] = 1;
+                } else {
+                    parcelAgg[oneParcel.place]++;
+                }
+            }
+
+            // Decide the next place where robot moves to.
+            for (aggKey in parcelAgg) {
+                if ( Object.keys(parcel).length == 0 ) {
+                    parcel = findParcelByPlace(parcels, aggKey);
+                } else {
+                    if (parcelAgg[aggKey] > parcelAgg[parcel.address]) {
+                        parcel = findParcelByPlace(parcels, aggKey);
+                    }
+                }
+            }
             route = findRoute(roadGraph, place, parcel.place);
+
         } else {
+            // Aggregate the destination of the parcels.
+            let robotCarryingAgg = {};
+            for ( carrying of robotCarrying ) {
+                if ( robotCarryingAgg[carrying['address']] == undefined ) {
+                    robotCarryingAgg[carrying['address']] = 1;
+                } else {
+                    robotCarryingAgg[carrying['address']]++;
+                }
+            }
+            // console.log(robotCarryingAgg);
+
+            
+            // Decide the next place where robot moves to.
+            for (aggKey in robotCarryingAgg) {
+                if ( Object.keys(parcel).length == 0 ) {
+                    parcel = findParcelByAddress(robotCarrying, aggKey);
+                } else {
+                    if (robotCarrying[aggKey] > robotCarrying[parcel.address]) {
+                        parcel = findParcelByAddress(robotCarrying, aggKey);
+                    }
+                }
             route = findRoute(roadGraph, place, parcel.address);
+            }
+            // console.log(parcel);
         }
     }
     return {direction: route[0], memory: route.slice(1)};
+}
+
+/**
+ * Find a parcel by address.
+ * Note that the one found at the first time will be returned.
+*/ 
+function findParcelByAddress(parcels, address) {
+    for ( parcel of parcels) {
+        if ( parcel.address == address ) return parcel;
+    }
+}
+
+function findParcelByPlace(parcels, place) {
+    for ( parcel of parcels) {
+        if ( parcel.place == place ) return parcel;
+    }
 }
 
 /**
@@ -158,9 +232,11 @@ function compareRobots(lambda, parcels) {
     let routeRobotTurns = [];
     let goalOrientedRobotTurns = [];
 
+    let villageState = {};
     for (let i = 0; i < lambda; i++) {
-        routeRobotTurns.push(runRobot(VillageState.random(parcels), routeRobot, mailRoute));
-        goalOrientedRobotTurns.push(runRobot(VillageState.random(parcels), goalOrientedRobot, []));
+        villageState = VillageState.random(parcels);
+        routeRobotTurns.push(runRobot(villageState, routeRobot, mailRoute));
+        goalOrientedRobotTurns.push(runRobot(villageState, goalOrientedRobot, []));
     }
 
     let routeRobotAvg = routeRobotTurns.reduce((sum, num) => sum + num, 0);
@@ -213,39 +289,39 @@ const mailRoute = [
 //
 
 // Test ViliageState class
-console.log('Testing VillageState class...');
-let first = new VillageState(
-    "Post Office",
-    [{place: "Post Office", address: "Alice's House"}]
-);
+// console.log('Testing VillageState class...');
+// let first = new VillageState(
+//     "Post Office",
+//     [{place: "Post Office", address: "Alice's House"}]
+// );
 
-let next = first.move("Alice's House");
+// let next = first.move("Alice's House");
 
-console.log(next.place);
-console.log(next.parcels);
-console.log(first.place);
+// console.log(next.place);
+// console.log(next.parcels);
+// console.log(first.place);
 
-console.log();
+// console.log();
 
 
 // Test random robot
-console.log('Testing random robot...');
-runRobot(VillageState.random(), randomRobot);
-console.log();
+// console.log('Testing random robot...');
+// runRobot(VillageState.random(), randomRobot);
+// console.log();
 
 
 // Test route robot
 // Note: The robot will never stop!
-console.log('Testing route robot...');
-runRobot(VillageState.random(), routeRobot, mailRoute);
+// console.log('Testing route robot...');
+// runRobot(VillageState.random(), routeRobot, mailRoute);
 
 
 // Test goal-oriented robot
-console.log('Testing goal-oriented robot...');
-runRobot(VillageState.random(), goalOrientedRobot, []);
-console.log();
+// console.log('Testing goal-oriented robot...');
+// runRobot(VillageState.random(), goalOrientedRobot, []);
+// console.log();
 
 
 // Measure robots
 console.log('Comparing robots...');
-compareRobots(100, 50)
+compareRobots(200, 200)
