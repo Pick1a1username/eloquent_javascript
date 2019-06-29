@@ -99,8 +99,6 @@ function randomRobot(state) {
 
 // Robot moving through a specified route.
 function routeRobot(state, memory) {
-    console.log(`Destinations Remaining: ${memory}`);
-    // If the robot has gone through entire route, start from beginning.
     if (memory.length == 0) {
         memory = mailRoute;
     }
@@ -150,7 +148,7 @@ function goalOrientedRobot({place, parcels}, route) {
 
 // Define roads
 const roads = [
-    "Alice's Houst-Bob's House",
+    "Alice's House-Bob's House",
     "Alice's House-Cabin",
     "Alice's House-Post Office",
     "Bob's House-Town Hall",
@@ -213,9 +211,8 @@ console.log();
 
 // Test route robot
 // Note: The robot will never stop!
-//
-// console.log('Testing route robot...');
-// runRobot(VillageState.random(), routeRobot, mailRoute);
+console.log('Testing route robot...');
+runRobot(VillageState.random(), routeRobot, mailRoute);
 
 
 // Test goal-oriented robot
