@@ -97,9 +97,9 @@
     /**
      * Create a node.
      * @param {string} name - Name
-     * @param {?} neighbors - ? 
-     * @param {?} network - ?
-     * @param {?} storage - ?
+     * @param {Object} neighbors - Neighbors
+     * @param {Network} network - Network
+     * @param {storageFor()} storage - storageFor function
      */
     constructor(name, neighbors, network, storage) {
       this.name = name
@@ -149,10 +149,12 @@
     }
 
     /**
-     * ?
-     * @param {*} name  - ?
-     * @param {*} value - ?
-     * @param {*} callback - ?
+     * Add a new thing to the storage.
+     * 
+     * Note: This function is never used.
+     * @param {string} name  - The name of the stroage.
+     * @param {*} value - The value of the things.
+     * @param {Function} callback - ?
      */
     writeStorage(name, value, callback) {
       setTimeout(() => {
@@ -165,7 +167,7 @@
   // Initialize network.
   let network = new Network(connections, storageFor)
 
-  // Export ...
+  // Export bindings.
   exports.bigOak = network.nodes["Big Oak"]
   exports.everywhere = network.everywhere.bind(network)
   exports.defineRequestType = network.defineRequestType.bind(network)
