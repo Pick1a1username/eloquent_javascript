@@ -5,15 +5,11 @@ class Timeout extends Error {}
 // import {bigOak} from "./crow-tech";
 // import {defineRequestType} from "./crow-tech";
 
-
 var bigOak = require("./crow-tech").bigOak;
 var defineRequestType = require("./crow-tech").defineRequestType;
 var everywhere = require("./crow-tech").everywhere;
 
-/*
-
-
-*/
+// Define a type for note.
 defineRequestType("note", (nest, content, source, done) => {
     console.log(`${nest.name} received note: ${content}`);
     done();
@@ -32,10 +28,10 @@ function storage(nest, name) {
 
 /**
  * Send a request.
- * @param {Node} nest 
- * @param {string} target 
- * @param {string} type 
- * @param {string} content 
+ * @param {Node} nest - Current nest.
+ * @param {string} target - Target nest.
+ * @param {string} type - Request's Type.
+ * @param {string} content - Content.
  */
 function request(nest, target, type, content) {
   return new Promise((resolve, reject) => {
@@ -274,10 +270,24 @@ async function chicks(nest, year) {
     return (await Promise.all(lines)).join("\n");
 }
 
+// storage()
+// Get enemies info from the storage.
+// storage(bigOak, "enemies")
+//   .then(value => console.log("Got", value));
 
-// ?
-storage(bigOak, "enemies")
-  .then(value => console.log("Got", value));
+// console.log("This code is after storage().");
+
+// console.log();
+
+
+// Send a gossip to reachable neighbors.
+console.log("Send a gossip to all neighbors.");
+
+sendGossip(bigOak, "Kids with airgun in the park");
+
+console.log("This code is after sendGossip().");
+
+console.log();
 
 
 // Look up a food cache in the storage bulbs of the Big Oak nest.
@@ -289,13 +299,6 @@ storage(bigOak, "enemies")
 //     console.log(info);
 //   });
 // });
-
-// console.log();
-
-// Send a gossip to reachable neighbors.
-// console.log("Send a gossip to all neighbors.");
-
-// sendGossip(bigOak, "Kids with airgun in the park");
 
 // console.log();
 

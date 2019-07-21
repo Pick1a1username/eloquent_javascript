@@ -145,6 +145,7 @@
      */
     readStorage(name, callback) {
       let value = this[$storage][name]
+      // Why is there &&?
       setTimeout(() => callback(value && JSON.parse(value)), 20)
     }
 
