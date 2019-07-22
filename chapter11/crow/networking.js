@@ -92,7 +92,7 @@ function availableNeighbors(nest) {
       .then(() => true, () => false);
     });
   return Promise.all(requests).then(result => {
-    // ?
+  // ?
     return nest.neighbors.filter((_, i) => result[i]);
   });
 }
@@ -270,6 +270,25 @@ async function chicks(nest, year) {
     return (await Promise.all(lines)).join("\n");
 }
 
+// Create a request type for sayYeah.
+// Note: This is not a part of the textbook.
+requestType("sayHo", () => {
+  return "Ho!";
+});
+
+/**
+ * asdfasdf
+ * Note: This is not a part of the textbook.
+ * 
+ */
+function sayHo(nest) {
+  for (let neighbor of nest.neighbors) {
+    request(nest, neighbor, "sayHo", (result) => {
+      console.log(result);
+    });
+  }
+}
+
 // storage()
 // Get enemies info from the storage.
 // storage(bigOak, "enemies")
@@ -281,13 +300,13 @@ async function chicks(nest, year) {
 
 
 // Send a gossip to reachable neighbors.
-console.log("Send a gossip to all neighbors.");
+// console.log("Send a gossip to all neighbors.");
 
-sendGossip(bigOak, "Kids with airgun in the park");
+// sendGossip(bigOak, "Kids with airgun in the park");
 
-console.log("This code is after sendGossip().");
+// console.log("This code is after sendGossip().");
 
-console.log();
+// console.log();
 
 
 // Look up a food cache in the storage bulbs of the Big Oak nest.
@@ -315,3 +334,9 @@ console.log();
 
 // // This part is supposed to be done successfully.
 // routeRequest(bigOak, "Church Tower", "note", "Incoming jackdaws!");
+
+
+// Say ho!
+console.log("Say ho!");
+
+sayHo(bigOak);

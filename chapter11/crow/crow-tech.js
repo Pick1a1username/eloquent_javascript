@@ -29,22 +29,29 @@
     storage["enemies"] = ["Farmer Jacques' dog", "The butcher", "That one-legged jackdaw", "The boy with the airgun"]
     if (name == "Church Tower" || name == "Hawthorn" || name == "Chateau")
       storage["events on 2017-12-21"] = "Deep snow. Butcher's garbage can fell over. We chased off the ravens from Saint-Vulbas."
+
+    // Set the number of chicks from 1985 to 2018.
     let hash = 0
     for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i)
     for (let y = 1985; y <= 2018; y++) {
       storage[`chicks in ${y}`] = hash % 6
       hash = Math.abs((hash << 2) ^ (hash + y))
     }
+
+    // ?
     if (name == "Big Oak") storage.scalpel = "Gilles' Garden"
     else if (name == "Gilles' Garden") storage.scalpel = "Woods"
     else if (name == "Woods") storage.scalpel = "Chateau"
     else if (name == "Chateau" || name == "Butcher Shop") storage.scalpel = "Butcher Shop"
     else storage.scalpel = "Big Oak"
+    
+    // ?
     for (let prop of Object.keys(storage)) storage[prop] = JSON.stringify(storage[prop])
+    
     return storage
   }
 
-  /** Class representing ...? */
+  /** Class representing the network of whole town */
   class Network {
     /**
      * Create a network.
@@ -52,11 +59,20 @@
      * @param {Function} storageFor - ?
      */
     constructor(connections, storageFor) {
+
+      // Get reachable nests.
+      // Note that this part generate the set of reachable nests of each nest.
       let reachable = Object.create(null)
       for (let [from, to] of connections.map(conn => conn.split("-"))) {
+        // Add 'to' to 'from' nest.
+        // If 'from' nest doesn't exist, create a new key for the nest.
         ;(reachable[from] || (reachable[from] = [])).push(to)
+        // Add 'from' to 'to' nest.
+        // If 'to' nest doesn't exist, create a new key for the nest.
         ;(reachable[to] || (reachable[to] = [])).push(from)
       }
+
+      // Generate nests.
       this.nodes = Object.create(null)
       for (let name of Object.keys(reachable))
         this.nodes[name] = new Node(name, reachable[name], this, storageFor(name))
@@ -122,7 +138,8 @@
       // If the target nest is unreachable, return ...
       if (!toNode || !this.neighbors.includes(to))
         return callback(new Error(`${to} is not reachable from ${this.name}`))
-      // Set the request type.
+      
+      // Get a handler for the specified type.
       let handler = this[$network].types[type]
       if (!handler)
         return callback(new Error("Unknown request type " + type))
