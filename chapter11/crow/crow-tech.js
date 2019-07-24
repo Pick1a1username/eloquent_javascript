@@ -76,6 +76,8 @@
       this.nodes = Object.create(null)
       for (let name of Object.keys(reachable))
         this.nodes[name] = new Node(name, reachable[name], this, storageFor(name))
+      
+      // Initialize request types.
       this.types = Object.create(null)
     }
 
@@ -170,7 +172,7 @@
      * Add a new thing to the storage.
      * 
      * Note: This function is never used.
-     * @param {string} name  - The name of the stroage.
+     * @param {string} name  - The name of the thing that will be added?
      * @param {*} value - The value of the things.
      * @param {Function} callback - ?
      */
