@@ -16,7 +16,7 @@
 
   /**
    * Generate storage info.
-   * @param {?} name - ?
+   * @param {string} name - The name of the nest.
    */
   function storageFor(name) {
     let storage = Object.create(null)
@@ -56,7 +56,7 @@
     /**
      * Create a network.
      * @param {string[]} connections - Connections
-     * @param {Function} storageFor - ?
+     * @param {Function} storageFor - The function generate storage info.
      */
     constructor(connections, storageFor) {
 
@@ -84,7 +84,7 @@
     /**
      * Define request type.
      * @param {string} name - The name of the type.
-     * @param {Function} handler - ?
+     * @param {function} handler - The function handling the request.
      */
     defineRequestType(name, handler) {
       this.types[name] = handler
@@ -132,7 +132,7 @@
      * @param {string} to - Target nest.
      * @param {string} type - Type of the message.
      * @param {string} message - Content of the message.
-     * @param {Function} callback - ?
+     * @param {function} callback - The callback function
      */
     send(to, type, message, callback) {
       // Set the target nest.
@@ -160,7 +160,7 @@
     /**
      * Get info of something in the storage.
      * @param {Node} name - The name of something in the storage.
-     * @param {Function} callback - Callback function.
+     * @param {function} callback - Callback function.
      */
     readStorage(name, callback) {
       let value = this[$storage][name]
@@ -174,7 +174,7 @@
      * Note: This function is never used.
      * @param {string} name  - The name of the thing that will be added?
      * @param {*} value - The value of the things.
-     * @param {Function} callback - ?
+     * @param {function} callback - The callback function.
      */
     writeStorage(name, value, callback) {
       setTimeout(() => {
@@ -191,6 +191,8 @@
   exports.bigOak = network.nodes["Big Oak"]
   exports.everywhere = network.everywhere.bind(network)
   exports.defineRequestType = network.defineRequestType.bind(network)
+  // This doesn't exist in the original code.
+  exports.nodes = network.nodes
 
   // ?
   if (typeof __sandbox != "undefined") {

@@ -8,6 +8,7 @@ class Timeout extends Error {}
 var bigOak = require("./crow-tech").bigOak;
 var defineRequestType = require("./crow-tech").defineRequestType;
 var everywhere = require("./crow-tech").everywhere;
+var nodes = require("./crow-tech").nodes;
 
 // Define a type for note.
 defineRequestType("note", (nest, content, source, done) => {
@@ -18,7 +19,8 @@ defineRequestType("note", (nest, content, source, done) => {
 
 /**
  * Get info of something in the storage.
- * @param {Node} - Current nest.
+ * @param {Node} nest - Current nest.
+ * @param {string} name - the name of something in the storage.
  */
 function storage(nest, name) {
   return new Promise(resolve => {
@@ -91,8 +93,10 @@ function availableNeighbors(nest) {
     return request(nest, neighbor, "ping")
       .then(() => true, () => false);
     });
+  
+  // Wait until all requests is responsed. then...
   return Promise.all(requests).then(result => {
-  // ?
+    // Return neighbors who responsed.
     return nest.neighbors.filter((_, i) => result[i]);
   });
 }
@@ -120,6 +124,7 @@ function sendGossip(nest, message, exceptFor = null) {
 requestType("gossip", (nest, message, source) => {
   if (nest.state.gossip.includes(message)) return;
   console.log(`${nest.name} received gossip '${message}' from ${source}`);
+  sendGossip(nest, message, source);
 });
 
 
@@ -137,7 +142,7 @@ requestType(
 /**
  * Broadcast Connections
  * @param {Node} nest - The current nest.
- * @param {?} name - 
+ * @param {string} name - The name of the current nest.
  * @param {Node} exceptFor - ?
  */
 function broadcastConnections(nest, name, exceptFor = null) {
@@ -146,11 +151,17 @@ function broadcastConnections(nest, name, exceptFor = null) {
         request(nest, neighbor, "connections", {
             name,
             neighbors: nest.state.connections.get(name)
+        })
+        .then( () => {
+          console.log("Broadcasted!");
+        },
+        () => {
+          console.log("Broadcasted?");
         });
     }
 }
 
-// ???
+// Add new state 'connections' to each nest.
 everywhere(nest => {
     nest.state.connections = new Map;
     nest.state.connections.set(nest.name, nest.neighbors);
@@ -164,21 +175,26 @@ everywhere(nest => {
  * Note that this function just returns the next step.
  * @param {string} from - Source nest.
  * @param {string} to - Target nest.
- * @param {?} connections - Source nest's neighbors
+ * @param {array} connections - Source nest's neighbors
  */
 function findRoute(from, to, connections) {
-    let work = [{at: from, via: null}];
-    for (let i = 0; i < work.length; i++) {
-        let {at, via} = work[i];
-        for (let next of connections.get(at) || []) {
-            if (next == to) return via;
-            if (!work.some(w => w.at == next)) {
-                work.push({at: next, via: via || next});
-            }
-        }
+  // Create an empty array containing the route.
+  let work = [{at: from, via: null}];
+  //
+  for (let i = 0; i < work.length; i++) {
+    //
+    let {at, via} = work[i];
+    //
+    console.log(at, via);
+    for (let next of connections.get(at) || []) {
+      if (next == to) return via;
+      if (!work.some(w => w.at == next)) {
+        work.push({at: next, via: via || next});
+      }
     }
+  }
 
-    return null;
+  return null;
 }
 
 // Create a new request type for route.
@@ -237,7 +253,7 @@ async function findInStorage(nest, name) {
 
 
 /**
- * Get neighbor's names.
+ * Get all neighbors' names.
  * @param {Node} nest - Current nest.
  */
 function network(nest) {
@@ -270,31 +286,103 @@ async function chicks(nest, year) {
     return (await Promise.all(lines)).join("\n");
 }
 
-// Create a request type for sayYeah.
-// Note: This is not a part of the textbook.
-requestType("sayHo", () => {
-  return "Ho!";
-});
+
+/*
+ * Test Functions
+ */
 
 /**
- * asdfasdf
- * Note: This is not a part of the textbook.
- * 
+ * Test function for findRoute().
+ * @param {Node} source_nest - Source nest.
  */
-function sayHo(nest) {
-  for (let neighbor of nest.neighbors) {
-    request(nest, neighbor, "sayHo", (result) => {
-      console.log(result);
-    });
+function testFindRoute(source_nest) {
+  // Broadcast connections of each nest.
+  // console.log("Broadcasting connections of each nest...");
+  // for (let [key, value] of Object.entries(nodes)) {
+  //   broadcastConnections(value, key);
+  // }
+  // console.log();
+
+
+
+  // Verify broadcast.
+  console.log("Verifying broadcast done right before...");
+  for (let [key, value] of Object.entries(nodes)) {
+    console.log(key);
+    console.log(value.state.connections);
+    console.log();
   }
+  console.log();
+
+  // Find a route
+  console.log(findRoute(source_nest.name, "Church Tower", bigOak.state.connections));
 }
+
+
+/**
+ * Test function for findRoute().
+ * @param {Node} source_nest - Source nest.
+ */
+function testRouteRequest() {
+  // Broadcast connections of each nest.
+  console.log("Broadcasting connections of each nest...");
+  for (let [key, value] of Object.entries(nodes)) {
+    broadcastConnections(value, key);
+  }
+
+  // Verify broadcast.
+  console.log("Verifying broadcast done right before...");
+  for (let [key, value] of Object.entries(nodes)) {
+    console.log(`${key}: ${value.state.connections}`);
+  }
+
+  routeRequest(bigOak, "Church Tower", "note", "Incoming jackdaws!");
+
+}
+
+
+
+
+
+
+/*
+ * Do the requests defined above.
+ */
+
+let nest_names = [
+  "Big Maple",
+  "Big Oak",
+  "Butcher Shop",
+  "Chateau",
+  "Church Tower",
+  "Cow Pasture",
+  "Fabienne's Garden",
+  "Gilles' Garden",
+  "Great Pine",
+  "Hawthorn",
+  "Jacques' Farm",
+  "Sportsgrounds",
+  "Tall Poplar",
+  "Woods"
+];
 
 // storage()
 // Get enemies info from the storage.
 // storage(bigOak, "enemies")
 //   .then(value => console.log("Got", value));
 
-// console.log("This code is after storage().");
+// console.log();
+
+
+// Get available neighbors
+// console.log("Get available neighbors");
+
+// availableNeighbors(bigOak)
+// .then( (result) => {
+//   for (let [_, value] of Object.entries(result)) {
+//     console.log(`Neighbor ${value}!`);
+//   }
+// });
 
 // console.log();
 
@@ -303,8 +391,6 @@ function sayHo(nest) {
 // console.log("Send a gossip to all neighbors.");
 
 // sendGossip(bigOak, "Kids with airgun in the park");
-
-// console.log("This code is after sendGossip().");
 
 // console.log();
 
@@ -329,14 +415,16 @@ function sayHo(nest) {
 
 // console.log();
 
+
+// Wait!!
+
+
+// Find a route
+console.log("Find a route.");
+setTimeout(() => testFindRoute(bigOak, "Big Oak"), 5000);
+
 // Send a message to the nest in the church tower.
 // console.log("Send a message to the nest in the church tower.");
-
-// // This part is supposed to be done successfully.
-// routeRequest(bigOak, "Church Tower", "note", "Incoming jackdaws!");
+// testRouteRequest();
 
 
-// Say ho!
-console.log("Say ho!");
-
-sayHo(bigOak);

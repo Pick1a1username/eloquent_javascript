@@ -1,6 +1,8 @@
 # asdf
 
-## sendGossip()
+## `networking.js`
+
+### sendGossip()
 
 ```mermaid
 sequenceDiagram
@@ -17,5 +19,15 @@ sequenceDiagram
 ```
 
 
-## broadcastConnections()
+### broadcastConnections()
 
+
+### requestType()
+
+```mermaid
+sequenceDiagram
+    main() ->> requestType(): requestType("ping", () => "pong")
+    requestType() ->> defineRequestType(): asdf
+    
+
+```
