@@ -151,17 +151,18 @@ function broadcastConnections(nest, name, exceptFor = null) {
         request(nest, neighbor, "connections", {
             name,
             neighbors: nest.state.connections.get(name)
-        })
-        .then( () => {
-          console.log("Broadcasted!");
-        },
-        () => {
-          console.log("Broadcasted?");
         });
+        // .then( () => {
+        //   console.log("Broadcasted!");
+        // },
+        // () => {
+        //   console.log("Broadcasted?");
+        // });
     }
 }
 
 // Add new state 'connections' to each nest.
+// Note that it takes quiet much time!!!
 everywhere(nest => {
     nest.state.connections = new Map;
     nest.state.connections.set(nest.name, nest.neighbors);
@@ -171,6 +172,7 @@ everywhere(nest => {
 
 /**
  * Search for a way to reach a given node in the network.
+ * Note that this doesn't work properly if broadcastConnections() is finished implemented by everywhere().
  *
  * Note that this function just returns the next step.
  * @param {string} from - Source nest.
@@ -185,13 +187,19 @@ function findRoute(from, to, connections) {
     //
     let {at, via} = work[i];
     //
-    console.log(at, via);
+    console.log(`corrent work: ${at}, ${via}`);
+    work.forEach( (oneOfWork) => {
+      console.log(`work: ${oneOfWork.at}, ${oneOfWork.via}`);
+    });
+      
     for (let next of connections.get(at) || []) {
+      console.log(`next: ${next}`);
       if (next == to) return via;
       if (!work.some(w => w.at == next)) {
         work.push({at: next, via: via || next});
       }
     }
+    console.log();
   }
 
   return null;
@@ -207,6 +215,9 @@ requestType(
 
 /**
  * Send long-distance messages
+ * 
+ * Note that this doesn't work properly if broadcastConnections() is finished implemented by everywhere().
+
  * @param {Node} nest - Current nest.
  * @param {string} target - Target nest.
  * @param {string} type - Type of request.
@@ -421,10 +432,15 @@ let nest_names = [
 
 // Find a route
 console.log("Find a route.");
+
+// You should use setTimeout() with testFindRoute!!!
+// setTimeout(() => true, 5000);
+// testFindRoute(bigOak, "Big Oak");
 setTimeout(() => testFindRoute(bigOak, "Big Oak"), 5000);
 
 // Send a message to the nest in the church tower.
 // console.log("Send a message to the nest in the church tower.");
 // testRouteRequest();
+// setTimeout(() => testRouteRequest, 5000);
 
 
