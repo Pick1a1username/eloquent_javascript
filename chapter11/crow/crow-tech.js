@@ -95,6 +95,7 @@
      * @param {Function} f - Code to run.
      */
     everywhere(f) {
+      // for (let node of Object.values(this.nodes)) f(node)
       for (let node of Object.values(this.nodes)) f(node)
     }
   }
