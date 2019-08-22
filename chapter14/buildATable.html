@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en"> 
+    <head>
+        <meta charset="utf-8"/>
+        <title>Build a Table</title>
+    </head>
+    <body>
+        <script>
+            const MOUNTAINS = [
+                {name: "Kilimanjaro", height: 5895, place: "Tanzania"},
+                {name: "Everest", height: 8848, place: "Nepal"},
+                {name: "Mount Fuji", height: 3776, place: "Japan"},
+                {name: "Vaalserberg", height: 323, place: "Netherlands"},
+                {name: "Denali", height: 6168, place: "United States"},
+                {name: "Popocatepetl", height: 5465, place: "Mexico"},
+                {name: "Mont Blanc", height: 4808, place: "Italy/France"}
+            ];
+
+            // Get columns.
+            let columns = [];
+            for (c of Object.keys(MOUNTAINS[0])) {
+                columns.push(c);
+            }
+
+            // Create a table node.
+            let table_node = document.createElement("table");
+
+            // Add the header to the table node.
+            let header_node = document.createElement("tr");
+            for (column_name of columns) {
+                let column = document.createElement("th");
+                let column_text = document.createTextNode(column_name);
+                column.appendChild(column_text);
+                header_node.appendChild(column);
+            }
+            table_node.appendChild(header_node);
+
+            // Add rows to the table node.
+            MOUNTAINS.forEach( (mountain) => {
+                let row = document.createElement("tr");
+                for (column_name of columns) {
+                    let column = document.createElement("td");
+                    let column_text = document.createTextNode(mountain[column_name]);
+                    column.appendChild(column_text);
+                    if (column_name == "height") {
+                        column.style.textAlign = "right";
+                    }
+                    row.appendChild(column);
+                }                
+                table_node.appendChild(row);
+            });
+
+
+            document.body.appendChild(table_node);
+        </script>
+    </body>
+</html>
