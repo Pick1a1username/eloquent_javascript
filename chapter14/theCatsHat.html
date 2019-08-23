@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"> 
+    <head>
+            <meta charset="utf-8"/>
+            <title>The Cat's Hat</title>
+        </head>
+    <body>
+        <style>body { min-height: 200px }</style>
+        <img src="img/cat.png" id="cat" style="position: absolute">
+        <img src="img/hat.png" id="hat" style="position: absolute">
+
+        <script>
+        let cat = document.querySelector("#cat");
+        let hat = document.querySelector("#hat");
+
+        let angle = 0;
+        let lastTime = null;
+        function animate(time) {
+            // console.log(time);
+            if (lastTime != null) angle += (time - lastTime) * 0.001;
+            lastTime = time;
+
+            // console.log(Math.sin(angle), Math.cos(angle));
+            catTopValue = (Math.sin(angle) * 40 + 40);
+            catLeftValue = (Math.cos(angle) * 200 + 230);
+            hatTopValue = catTopValue + 30 + (-Math.sin(angle) * 100);
+            hatLeftValue = catLeftValue + (-Math.cos(angle) * 40);
+
+            cat.style.top = catTopValue + "px";
+            cat.style.left = catLeftValue + "px";
+
+            // Your extensions here.
+            hat.style.top = hatTopValue + "px";
+            hat.style.left = hatLeftValue + "px";
+            // hat.style.top = /\d+/.exec(cat.style.top) + "px";
+            // hat.style.left = /\d+/.exec(cat.style.left) + "px";
+
+
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+        </script>
+    </body>
+</html>
