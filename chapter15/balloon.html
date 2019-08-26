@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"> 
+  <head>
+    <meta charset="utf-8"/>
+    <title>Exercise - Balloon</title>
+  </head>
+  <body>
+    <!-- If style is set like below, font-size cannot be get. -->
+    <!-- <style>
+      #balloon {
+        font-size: 20px;
+      }
+    </style> -->
+
+    <p>
+      <div id="balloon" style="font-size: 20px">&#x1F388</div>
+    </p>
+    <!-- <p id="balloon">&#x1F388</p> -->
+
+    <script>      
+      let balloon = document.querySelector("#balloon");
+      // let balloon_blown_up = false;
+      const MAX = 100;
+      console.log(`Balloon's size: ${balloon.style.fontSize}`);
+      console.log(`Balloon's text: ${balloon.textContent}`);
+
+      window.addEventListener("keydown", inflate_balloon);
+      window.addEventListener("keydown", deflate_balloon);
+
+      function inflate_balloon(event) {
+        console.log("keydown triggered.");
+        // event.preventDefault();
+        if (event.key == "ArrowUp") {
+          console.log("ArrowUp triggered.");
+          let new_balloon_size = parseInt(/\d+/.exec(balloon.style.fontSize)[0]) + 1;
+          if ( new_balloon_size > MAX ) {
+            balloon.textContent = "💥";
+            window.removeEventListener("keydown", inflate_balloon);
+            window.removeEventListener("keydown", deflate_balloon);
+            // balloon_blown_up = true;
+          }
+          balloon.style.fontSize = new_balloon_size + "px";
+          console.log(`Balloon's size: ${balloon.style.fontSize}`);
+        }
+      }
+
+      function deflate_balloon(event) {
+        console.log("keydown triggered.");
+        // event.preventDefault();
+        if (event.key == "ArrowDown") {
+          console.log("ArrowDown triggered.");
+          let new_balloon_size = parseInt(/\d+/.exec(balloon.style.fontSize)[0]) - 1;
+          balloon.style.fontSize = new_balloon_size + "px";
+          console.log(`Balloon's size: ${balloon.style.fontSize}`);
+        }        
+      }
+    </script>
+  </body>
+</html>
