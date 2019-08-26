@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"> 
+  <head>
+    <meta charset="utf-8"/>
+    <title>Exercise - Balloon</title>
+  </head>
+  <body>
+    <style>
+      .trail { /* className for the trail elements */
+          position: absolute;
+          height: 6px; width: 6px;
+          border-radius: 3px;
+          background: teal;
+      }
+      body {
+          height: 300px;
+      }
+    </style>
+      
+    <script>
+      // Draw a dot.
+
+      // Move the dot to the position where the cursor exists recently.
+
+      // The nearer the dot moves to the position, the more transparent the dot is.
+
+      // the maximum number of dots is 10.
+      // If there are ten dots, and if a new dot should be drawn, the last one will be removed.
+
+
+      let timeout;
+
+      window.addEventListener("mousemove", draw_dot);
+
+
+      function draw_dot(event) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          console.log(`draw_dot triggered. x: ${event.pageX}, y: ${event.pageY}`);
+          let dot = document.createElement("div");
+          dot.className = "trail";
+          dot.style.left = (event.pageX - 4) + "px";
+          dot.style.top = (event.pageY - 4) + "px";
+        document.body.appendChild(dot);
+        }, 5);
+      }
+    </script>
+  </body>
+</html>
