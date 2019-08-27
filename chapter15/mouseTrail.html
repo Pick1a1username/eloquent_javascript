@@ -27,8 +27,10 @@
       // the maximum number of dots is 10.
       // If there are ten dots, and if a new dot should be drawn, the last one will be removed.
 
+      let MAX_DOTS = 10;
 
       let timeout;
+      let dots = [];
 
       window.addEventListener("mousemove", draw_dot);
 
@@ -41,9 +43,18 @@
           dot.className = "trail";
           dot.style.left = (event.pageX - 4) + "px";
           dot.style.top = (event.pageY - 4) + "px";
-        document.body.appendChild(dot);
+          dot.style.opacity = 1;
+          if ( dots.length > MAX_DOTS ) {
+            // https://gomakethings.com/removing-an-element-from-the-dom-with-vanilla-js/
+            dots[0].parentNode.removeChild(dots[0]);
+            dots.shift();
+          }
+          dots.push(dot);
+          console.log(`Current dots: ${dots.length}`);
+          document.body.appendChild(dot);
         }, 5);
       }
+
     </script>
   </body>
 </html>
