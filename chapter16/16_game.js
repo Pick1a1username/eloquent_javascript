@@ -107,6 +107,29 @@ var Player = class Player {
 // since it is the same for all instances of Player.
 Player.prototype.size = new Vec(0.8, 1.5);
 
+Player.prototype.update = function(time, state, keys) {
+  let xSpeed = 0;
+  if (keys.ArrowLeft) xSpeed -= playerXSpeed;
+  if (keys.ArrowRight) xSpeed += playerXSpeed;
+  let pos = this.pos;
+  let movedX = pos.plus(new Vec(xSpeed * time, 0));
+  if (!state.level.touches(movedX, this.size, "wall")) {
+    pos = movedX;
+  }
+
+  let ySpeed = this.speed.y + time * gravity;
+  let movedY = pos.plus(new Vec(0, ySpeed * time));
+  if (!state.level.touches(movedY, this.size, "wall")) {
+    pos = movedY;
+  } else if (keys.ArrowUp && ySpeed > 0) {
+    ySpeed = -jumpSpeed;
+  } else {
+    ySpeed = 0;
+  }
+  return new Player(pos, new Vec(xSpeed, ySpeed));
+};
+
+
 /**
  * 
  * @param {*} pos 
@@ -140,6 +163,32 @@ var Lava = class Lava {
 
 Lava.prototype.size = new Vec(1, 1);
 
+
+/**
+ * 
+ * @param {?} state
+ */
+Lava.prototype.collide = function(state) {
+  return new State(state.level, state.actors, "lost");
+};
+
+/**
+ * 
+ * @param {?} time
+ * @param {State} state
+ */
+Lava.prototype.update = function(time, state) {
+  let newPos = this.pos.plus(this.speed.times(time));
+  if (!state.level.touches(newPos, this.size, "wall")) {
+    return new Lava(newPos, this.speed, this.reset);
+  } else if (this.reset) {
+    return new Lava(this.reset, this.speed, this.reset);
+  } else {
+    return new Lava(this.pos, this.speed.times(-1));
+  }
+};
+
+
 /**
  * 
  * @param {*} pos 
@@ -163,6 +212,29 @@ var Coin = class Coin {
 }
 
 Coin.prototype.size = new Vec(0.6, 0.6);
+
+/**
+ * 
+ * @param {State} state
+ */
+Coin.prototype.collide = function(state) {
+  // Get actors without this actor.
+  let filtered = state.actors.filter(a => a != this);
+  let status = state.status;
+  if (!filtered.some(a => a.type == "coin")) status = "won";
+  return new State(state.level, filtered, status);
+};
+
+
+
+Coin.prototype.update = function(time) {
+  let wobble = this.wobble + time * wobbleSpeed;
+  let wobblePos = Math.sin(wobble) * wobbleDist;
+  return new Coin(this.basePos.plus(new Vec(0, wobblePos)),
+                  this.basePos, wobble);
+};
+
+var wobbleSpeed = 8, wobbleDist = 0.07;
 
 // Define an object that maps plan characters to
 // either background grid types or actor classes.
@@ -284,6 +356,12 @@ DOMDisplay.prototype.scrollPlayerIntoView = function(state) {
   }
 };
 
+/**
+ * Check whether a rectangle touches a grid element of the given type.
+ * @param {Vec} pos
+ * @param {number} size
+ * @param {?} type
+ */
 Level.prototype.touches = function(pos, size, type) {
   var xStart = Math.floor(pos.x);
   var xEnd = Math.ceil(pos.x + size.x);
@@ -301,6 +379,11 @@ Level.prototype.touches = function(pos, size, type) {
   return false;
 };
 
+/**
+ * Check whether ...
+ * @param {?} time
+ * @param {?} keys
+ */
 State.prototype.update = function(time, keys) {
   let actors = this.actors
     .map(actor => actor.update(time, this, keys));
@@ -321,6 +404,11 @@ State.prototype.update = function(time, keys) {
   return newState;
 };
 
+/**
+ * Detect overlap between actors.
+ * @param {*} actor1 
+ * @param {*} actor2 
+ */
 function overlap(actor1, actor2) {
   return actor1.pos.x + actor1.size.x > actor2.pos.x &&
          actor1.pos.x < actor2.pos.x + actor2.size.x &&
@@ -328,63 +416,14 @@ function overlap(actor1, actor2) {
          actor1.pos.y < actor2.pos.y + actor2.size.y;
 }
 
-Lava.prototype.collide = function(state) {
-  return new State(state.level, state.actors, "lost");
-};
-
-Coin.prototype.collide = function(state) {
-  let filtered = state.actors.filter(a => a != this);
-  let status = state.status;
-  if (!filtered.some(a => a.type == "coin")) status = "won";
-  return new State(state.level, filtered, status);
-};
-
-Lava.prototype.update = function(time, state) {
-  let newPos = this.pos.plus(this.speed.times(time));
-  if (!state.level.touches(newPos, this.size, "wall")) {
-    return new Lava(newPos, this.speed, this.reset);
-  } else if (this.reset) {
-    return new Lava(this.reset, this.speed, this.reset);
-  } else {
-    return new Lava(this.pos, this.speed.times(-1));
-  }
-};
-
-var wobbleSpeed = 8, wobbleDist = 0.07;
-
-Coin.prototype.update = function(time) {
-  let wobble = this.wobble + time * wobbleSpeed;
-  let wobblePos = Math.sin(wobble) * wobbleDist;
-  return new Coin(this.basePos.plus(new Vec(0, wobblePos)),
-                  this.basePos, wobble);
-};
-
 var playerXSpeed = 7;
 var gravity = 30;
 var jumpSpeed = 17;
 
-Player.prototype.update = function(time, state, keys) {
-  let xSpeed = 0;
-  if (keys.ArrowLeft) xSpeed -= playerXSpeed;
-  if (keys.ArrowRight) xSpeed += playerXSpeed;
-  let pos = this.pos;
-  let movedX = pos.plus(new Vec(xSpeed * time, 0));
-  if (!state.level.touches(movedX, this.size, "wall")) {
-    pos = movedX;
-  }
-
-  let ySpeed = this.speed.y + time * gravity;
-  let movedY = pos.plus(new Vec(0, ySpeed * time));
-  if (!state.level.touches(movedY, this.size, "wall")) {
-    pos = movedY;
-  } else if (keys.ArrowUp && ySpeed > 0) {
-    ySpeed = -jumpSpeed;
-  } else {
-    ySpeed = 0;
-  }
-  return new Player(pos, new Vec(xSpeed, ySpeed));
-};
-
+/**
+ * Return an object that tracks the current position of those keys.
+ * @param {*} keys 
+ */
 function trackKeys(keys) {
   let down = Object.create(null);
   function track(event) {
